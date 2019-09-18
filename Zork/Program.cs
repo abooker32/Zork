@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Zork
 {
     class Program
     {
         private static string[] Rooms = {"Forest", "West of House", "Behind House", "Clearing", "Canyon View"};
+        private static int i = 1;
 
         static void Main(string[] args)
         {
@@ -13,10 +15,12 @@ namespace Zork
             Commands command = Commands.UNKNOWN;
             while (command != Commands.QUIT)
             {
+                Console.WriteLine(Rooms[i]);
+                Console.WriteLine(i);
                 Console.Write("> ");
                 command = ToCommand(Console.ReadLine().Trim());
 
-                string outputString;
+                string outputString = "";
                 switch (command)
                 {
                     case Commands.QUIT:
@@ -28,10 +32,33 @@ namespace Zork
                         break;
 
                     case Commands.NORTH:
+                        if (Move(command) == false)
+                        {
+                            outputString = "The way is shut!";
+                        }
+                        break;
+
                     case Commands.SOUTH:
+                        if (Move(command) == false)
+                        {
+                            outputString = "The way is shut!";
+                        }
+                        break;
+
                     case Commands.EAST:
+                        if (i + 1 < Rooms.Length)
+                        {
+                            outputString = $"You moved {command}.";
+                            i--;
+                        }                       
+                        break;
+
                     case Commands.WEST:
-                        outputString = $"You moved {command}.";
+                        if (i - 1 > 0)
+                        {
+                            outputString = $"You moved {command}.";
+                            i++;
+                        }                       
                         break;
 
                     default:
@@ -44,5 +71,17 @@ namespace Zork
         }
 
         private static Commands ToCommand(string commandString) => (Enum.TryParse(commandString, true, out Commands result) ? result : Commands.UNKNOWN);
+
+        private static bool Move(Commands command)
+        {
+            bool isValid = true;
+
+            if (command == Commands.NORTH || command == Commands.SOUTH)
+            {
+                isValid = false;
+            }
+
+            return isValid;
+        }
     }
 }
