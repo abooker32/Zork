@@ -3,32 +3,35 @@ using System.Collections.Generic;
 
 namespace Zork
 {
-    class Program
+    internal class Program
     {
-        private static (int row, int column) Location;
+        private static string CurrentRoom
+        {
+            get
+            {
+                return Rooms[Location.Row, Location.Column];
+            }
+        }
 
         static void Main(string[] args)
         {
             Console.WriteLine("Welcome to Zork!");
-            Location.row = 1;
-            Location.column = 1;
 
             Commands command = Commands.UNKNOWN;
             while (command != Commands.QUIT)
             {
-                Console.WriteLine(Rooms[Location.row, Location.column]);
+                Console.WriteLine(CurrentRoom);
                 Console.Write("> ");
                 command = ToCommand(Console.ReadLine().Trim());
 
-                string outputString = "";
                 switch (command)
                 {
                     case Commands.QUIT:
-                        outputString = "Thank you for playing!";
+                        Console.WriteLine("Thank you for playing!");
                         break;
 
                     case Commands.LOOK:
-                        outputString = "This is an open field west of a white house, with a boarded front door. \nA rubber mat saying 'Welcome to Zork' lies by the door.";
+                        Console.WriteLine("This is an open field west of a white house, with a boarded front door. \nA rubber mat saying 'Welcome to Zork' lies by the door.");
                         break;
 
                     case Commands.NORTH:
@@ -42,11 +45,9 @@ namespace Zork
                         break;
 
                     default:
-                        outputString = "Unknown command.";
+                        Console.WriteLine("Unknown command.");
                         break;
                 }
-
-                Console.WriteLine(outputString);
             }
         }
 
@@ -54,26 +55,28 @@ namespace Zork
 
         private static bool Move(Commands command)
         {
+            Assert.IsTrue(IsDirection(command), "Invalid direction.");
+
             bool isValid = true;
 
             if (command == Commands.NORTH || command == Commands.SOUTH || command == Commands.EAST || command == Commands.WEST)
             {
                 switch (command)
                 {
-                    case Commands.NORTH when Location.row > 0:
-                        Location.row--;
+                    case Commands.NORTH when Location.Row > 0:
+                        Location.Row--;
                         break;
 
-                    case Commands.SOUTH when Location.row + 1 < Rooms.GetLength(0):
-                        Location.row++;
+                    case Commands.SOUTH when Location.Row < Rooms.GetLength(0) - 1:
+                        Location.Row++;
                         break;
 
-                    case Commands.EAST when Location.column + 1 < Rooms.GetLength(1):
-                        Location.column++;
+                    case Commands.EAST when Location.Column < Rooms.GetLength(1) - 1:
+                        Location.Column++;
                         break;
 
-                    case Commands.WEST when Location.column > 0:
-                        Location.column--;
+                    case Commands.WEST when Location.Column > 0:
+                        Location.Column--;
                         break;
 
                     default:
@@ -84,11 +87,23 @@ namespace Zork
             return isValid;
         }
 
+        private static bool IsDirection(Commands command) => Directions.Contains(command);
+
         private static readonly string[,] Rooms =
         {
             { "Rocky Trail", "South of House", "Canyon View" },
             { "Forest", "West of House", "Behind House" },
             { "Dense Woods", "North of House", "Clearing" }
         };
+
+        private static readonly List<Commands> Directions = new List<Commands>
+        {
+            Commands.NORTH,
+            Commands.SOUTH,
+            Commands.EAST,
+            Commands.WEST
+        };
+
+        private static (int Row, int Column) Location = (1, 1);
     }
 }
