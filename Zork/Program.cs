@@ -16,7 +16,6 @@ namespace Zork
             while (command != Commands.QUIT)
             {
                 Console.WriteLine(Rooms[i]);
-                Console.WriteLine(i);
                 Console.Write("> ");
                 command = ToCommand(Console.ReadLine().Trim());
 
@@ -49,16 +48,24 @@ namespace Zork
                         if (i + 1 < Rooms.Length)
                         {
                             outputString = $"You moved {command}.";
-                            i--;
-                        }                       
+                            i++;
+                        }
+                        else
+                        {
+                            outputString = $"The way is shut!";
+                        }
                         break;
 
                     case Commands.WEST:
-                        if (i - 1 > 0)
+                        if (i - 1 >= 0)
                         {
                             outputString = $"You moved {command}.";
-                            i++;
-                        }                       
+                            i--;
+                        }
+                        else
+                        {
+                            outputString = $"The way is shut!";
+                        }
                         break;
 
                     default:
