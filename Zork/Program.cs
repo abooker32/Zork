@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace Zork
 {
@@ -10,6 +12,20 @@ namespace Zork
             get
             {
                 return Rooms[Location.Row, Location.Column];
+            }
+        }
+
+        private static readonly Dictionary<string, Room> roomMap;
+
+        //const string defaultRoomsFilename = "Rooms.txt";
+        //string roomFilename = (args.Length > 0 ? args[(int)CommandLineArguments.RoomsFilename] : defaultRoomsFilename);
+
+        static Program()
+        {
+            roomMap = new Dictionary<string, Room>();
+            foreach (Room room in Rooms)
+            {
+                roomMap[room.Name] = room;
             }
         }
 
@@ -96,23 +112,21 @@ namespace Zork
 
         private static bool IsDirection(Commands command) => Directions.Contains(command);
 
-        private static void InitializeRoomDescriptions()
+        private static void InitializeRoomDescriptions(string roomsFilename)
         {
-            var roomMap = new Dictionary<string, Room>();
-            foreach (Room room in Rooms)
-            {
-                roomMap[room.Name] = room;
-            }
+            
+            const string fieldDelimiter = "##";
+            const int expectedFieldCount = 2;
+            var roomQuery = from line in File.ReadLines(roomsFilename)
+                            let fields = line.Split(fieldDelimiter)
+                            where fields.Length == expectedFieldCount
+                            select (Name: fields[(int)Fields.Name],
+                                    Description: fields[(int)Fields.Description]);
 
-            roomMap["Rocky Trail"].Description = "You are on a rock-strewn trail.";
-            roomMap["South of House"].Description = "You are facing the south side of a white house. There is no door here, and all the windows are barred.";
-            roomMap["Canyon View"].Description = "You are at the top of the Great Canyon on its south wall.";
-            roomMap["Forest"].Description = "This is a forest, with trees in all directions around you.";
-            roomMap["West of House"].Description = "This is an open field west of a white house, with a boarded front door.";
-            roomMap["Behind House"].Description = "You are behind the white house. In one corner of the house there is a small window which is slightly ajar.";
-            roomMap["Dense Woods"].Description = "This is a dimly lit forest, with trees all around. To the east there appears to be sunlight.";
-            roomMap["North of House"].Description = "You are facing the north side of a white house. There is no door here, and all the windows are barred.";
-            roomMap["Clearing"].Description = "You are in a clearing, with a forest surrounding you on the west and south.";
+            foreach (var (Name, Description) in roomQuery)
+            {
+                roomMap[Name].Description = Description;
+            }
         }
 
         private static readonly Room[,] Rooms =
@@ -131,5 +145,11 @@ namespace Zork
         };
 
         private static (int Row, int Column) Location = (1, 1);
+
+        private enum Fields
+        {
+            Name = 0,
+            Description
+        }
     }
 }
