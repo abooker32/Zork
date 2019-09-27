@@ -17,22 +17,13 @@ namespace Zork
 
         private static readonly Dictionary<string, Room> roomMap;
 
-        //const string defaultRoomsFilename = "Rooms.txt";
-        //string roomFilename = (args.Length > 0 ? args[(int)CommandLineArguments.RoomsFilename] : defaultRoomsFilename);
-
-        static Program()
-        {
-            roomMap = new Dictionary<string, Room>();
-            foreach (Room room in Rooms)
-            {
-                roomMap[room.Name] = room;
-            }
-        }
-
         static void Main(string[] args)
         {
+            const string defaultRoomsFilename = "Rooms.txt";
+            string roomsFilename = (args.Length > 0 ? args[(int)CommandLineArguments.RoomsFilename] : defaultRoomsFilename);
+
             Console.WriteLine("Welcome to Zork!");
-            InitializeRoomDescriptions();
+            InitializeRoomDescriptions(roomsFilename);
 
             Room previousRoom = null;            
             Commands command = Commands.UNKNOWN;
@@ -129,6 +120,15 @@ namespace Zork
             }
         }
 
+        static Program()
+        {
+            roomMap = new Dictionary<string, Room>();
+            foreach (Room room in Rooms)
+            {
+                roomMap[room.Name] = room;
+            }
+        }
+
         private static readonly Room[,] Rooms =
         {
             { new Room("Rocky Trail"), new Room("South of House"), new Room("Canyon View") },
@@ -150,6 +150,11 @@ namespace Zork
         {
             Name = 0,
             Description
+        }
+
+        private enum CommandLineArguments
+        {
+            RoomsFilename = 0,
         }
     }
 }
